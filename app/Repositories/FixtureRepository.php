@@ -7,29 +7,43 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FixtureRepository
 {
+    protected Fixture $model;
+
+    public function __construct(Fixture $model)
+    {
+        $this->model = $model;
+    }
+
     /**
+     * Get all fixtures with their teams, ordered by week
+     *
      * @return Collection<int, Fixture>
      */
     public function allWithTeams(): Collection
     {
-        return Fixture::with(['homeTeam', 'awayTeam'])
-                      ->orderBy('week')
-                      ->get();
+        return $this->model->with(['homeTeam', 'awayTeam'])
+                           ->orderBy('week')
+                           ->get();
     }
 
     /**
+     * Delete all fixtures
+     *
      * @return void
      */
-    public function deleteAll()
+    public function deleteAll(): void
     {
-        Fixture::query()->delete();
+        $this->model->query()->delete();
     }
 
     /**
+     * Insert multiple fixtures
+     *
+     * @param array $data
      * @return void
      */
-    public function insertMany(array $m)
+    public function insertMany(array $data): void
     {
-        Fixture::insert($m);
+        $this->model->insert($data);
     }
 }

@@ -20,7 +20,7 @@ class FixtureController extends Controller
     public function index()
     {
         $weeks = $this->fixtureService->getFixturesGroupedByWeek();
-        $teams = $this->teamService->getAll();
+        $teams = $this->teamService->getAllTeams();
 
         return view('fixtures', compact('weeks', 'teams'));
     }

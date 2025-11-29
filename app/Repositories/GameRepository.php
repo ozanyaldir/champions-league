@@ -7,27 +7,37 @@ use Illuminate\Database\Eloquent\Collection;
 
 class GameRepository
 {
+    protected Game $model;
+
+    public function __construct(Game $model)
+    {
+        $this->model = $model;
+    }
+
     /**
      * @return Collection<int, Game>
      */
     public function getAll(): Collection
     {
-        return Game::all();
+        return $this->model->query()->get();
     }
 
     /**
      * @return void
      */
-    public function deleteAll()
+    public function deleteAll(): void
     {
-        Game::query()->delete();
+        $this->model->query()->delete();
     }
 
     /**
-     * @return void
+     * Create a new Game record
+     * 
+     * @param array $data
+     * @return Game
      */
-    public function create(array $m)
+    public function create(array $data): Game
     {
-        return Game::create($m);
+        return $this->model->create($data);
     }
 }

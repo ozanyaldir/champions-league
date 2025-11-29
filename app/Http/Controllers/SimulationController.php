@@ -22,7 +22,7 @@ class SimulationController extends Controller
     
     public function index()
     {
-        $teams = $this->teamService->getAll();
+        $teams = $this->teamService->getAllTeams();
         $weeks = $this->fixtureService->getFixturesGroupedByWeek();
 
         // Build initial empty league table

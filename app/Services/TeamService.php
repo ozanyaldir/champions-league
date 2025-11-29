@@ -17,7 +17,7 @@ class TeamService
     /**
      * @return Collection<int, Team>
      */
-    public function getAll(): Collection
+    public function getAllTeams(): Collection
     {
         return $this->teamRepository->getAll();
     }

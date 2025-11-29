@@ -7,11 +7,18 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TeamRepository
 {
+    protected $model;
+
+    public function __construct(Team $model)
+    {
+        $this->model = $model;
+    }
+
     /**
      * @return Collection<int, Team>
      */
     public function getAll(): Collection
     {
-        return Team::all();
+        return $this->model->all();
     }
 }
