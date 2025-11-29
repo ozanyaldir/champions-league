@@ -22,14 +22,12 @@ class FixtureRepository
     public function allWithTeams(): Collection
     {
         return $this->model->with(['homeTeam', 'awayTeam'])
-                           ->orderBy('week')
-                           ->get();
+            ->orderBy('week')
+            ->get();
     }
 
     /**
      * Delete all fixtures
-     *
-     * @return void
      */
     public function deleteAll(): void
     {
@@ -38,9 +36,6 @@ class FixtureRepository
 
     /**
      * Insert multiple fixtures
-     *
-     * @param array $data
-     * @return void
      */
     public function insertMany(array $data): void
     {

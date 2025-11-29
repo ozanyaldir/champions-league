@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class FixtureController extends Controller
 {
     protected $teamService;
+
     protected $fixtureService;
 
     public function __construct(TeamService $teamService, FixtureService $fixtureService)
@@ -29,7 +30,7 @@ class FixtureController extends Controller
     {
         $success = $this->fixtureService->generateFixtures();
 
-        if (!$success) {
+        if (! $success) {
             return back()->with('error', 'Not enough teams to generate fixtures.');
         }
 

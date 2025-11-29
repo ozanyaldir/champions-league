@@ -8,7 +8,9 @@ use App\Repositories\GameRepository;
 class SimulationService
 {
     protected $fixtureRepository;
+
     protected $gameRepository;
+
     protected $teamRepository;
 
     public function __construct(

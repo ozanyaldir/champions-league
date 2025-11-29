@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TeamController;
 use App\Http\Controllers\FixtureController;
 use App\Http\Controllers\SimulationController;
+use App\Http\Controllers\TeamController;
+use Illuminate\Support\Facades\Route;
 
 // HOME
 Route::get('/', function () {

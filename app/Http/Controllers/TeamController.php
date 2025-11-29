@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Team;
 use App\Services\TeamService;
 
 class TeamController extends Controller

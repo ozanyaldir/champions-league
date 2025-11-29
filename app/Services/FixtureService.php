@@ -9,7 +9,9 @@ use App\Repositories\TeamRepository;
 class FixtureService
 {
     protected $fixtureRepository;
+
     protected $gameRepository;
+
     protected $teamRepository;
 
     public function __construct(

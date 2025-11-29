@@ -15,7 +15,7 @@ class Team extends Model
     protected $fillable = [
         'name',
     ];
-    
+
     protected $attributes = [
         'played' => 0,
         'won' => 0,

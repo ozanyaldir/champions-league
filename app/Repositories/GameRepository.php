@@ -22,9 +22,6 @@ class GameRepository
         return $this->model->query()->get();
     }
 
-    /**
-     * @return void
-     */
     public function deleteAll(): void
     {
         $this->model->query()->delete();
@@ -32,9 +29,6 @@ class GameRepository
 
     /**
      * Create a new Game record
-     * 
-     * @param array $data
-     * @return Game
      */
     public function create(array $data): Game
     {

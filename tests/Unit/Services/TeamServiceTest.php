@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\TeamService;
-use App\Repositories\TeamRepository;
 use App\Models\Team;
+use App\Repositories\TeamRepository;
+use App\Services\TeamService;
 use Illuminate\Database\Eloquent\Collection;
 use Mockery;
+use Tests\TestCase;
 
 class TeamServiceTest extends TestCase
 {

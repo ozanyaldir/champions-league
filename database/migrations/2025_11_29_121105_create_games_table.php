@@ -16,9 +16,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('fixture_id')
-                  ->references('id')
-                  ->on('fixtures')
-                  ->cascadeOnDelete();
+                ->references('id')
+                ->on('fixtures')
+                ->cascadeOnDelete();
         });
     }
 

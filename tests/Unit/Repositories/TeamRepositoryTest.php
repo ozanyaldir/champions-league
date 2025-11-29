@@ -2,15 +2,15 @@
 
 namespace Tests\Unit\Repositories;
 
-use Tests\TestCase;
 use App\Models\Team;
-use Mockery;
 use App\Repositories\TeamRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Mockery;
+use Tests\TestCase;
 
 class TeamRepositoryTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();
@@ -27,8 +27,8 @@ class TeamRepositoryTest extends TestCase
         // Mock the Team model instance
         $teamModelMock = Mockery::mock(Team::class);
         $teamModelMock->shouldReceive('all')
-                      ->once()
-                      ->andReturn($fakeTeams);
+            ->once()
+            ->andReturn($fakeTeams);
 
         // Inject mock into repository
         $repo = new TeamRepository($teamModelMock);
