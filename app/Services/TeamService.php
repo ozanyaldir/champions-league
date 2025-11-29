@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\TeamRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 class TeamService
 {
@@ -14,9 +15,9 @@ class TeamService
     }
 
     /**
-     * Return all teams
+     * @return Collection<int, Team>
      */
-    public function getAllTeams()
+    public function getAll(): Collection
     {
         return $this->teamRepository->getAll();
     }

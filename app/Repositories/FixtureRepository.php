@@ -3,23 +3,33 @@
 namespace App\Repositories;
 
 use App\Models\Fixture;
+use Illuminate\Database\Eloquent\Collection;
 
 class FixtureRepository
 {
-    public function allWithTeams()
+    /**
+     * @return Collection<int, Fixture>
+     */
+    public function allWithTeams(): Collection
     {
         return Fixture::with(['homeTeam', 'awayTeam'])
                       ->orderBy('week')
                       ->get();
     }
 
+    /**
+     * @return void
+     */
     public function deleteAll()
     {
         Fixture::query()->delete();
     }
 
-    public function insertMany(array $fixtures)
+    /**
+     * @return void
+     */
+    public function insertMany(array $m)
     {
-        Fixture::insert($fixtures);
+        Fixture::insert($m);
     }
 }

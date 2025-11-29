@@ -5,28 +5,35 @@
 
     <h2 class="mb-4">Tournament Teams</h2>
 
-    <table class="table table-bordered">
-        <thead class="bg-dark text-white">
-            <tr>
-                <th>Team Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{-- You will inject teams here --}}
-            @foreach ($teams ?? [] as $team)
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
                 <tr>
-                    <td>{{ $team->name }}</td>
+                    <th>Team Name</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($teams ?? [] as $team)
+                    <tr>
+                        <td>{{ $team->name }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td>No teams available</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
-    <form action="{{ route('fixtures.generate') }}" method="POST">
-        @csrf
-        <button type="submit" class="btn btn-primary">
-            Generate Fixtures
-        </button>
-    </form>
+    <div>
+        <form action="{{ route('fixtures.generate') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-primary">
+                Generate Fixtures
+            </button>
+        </form>
+    </div>
 
 </div>
 @endsection

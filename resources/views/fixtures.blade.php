@@ -2,31 +2,7 @@
 
 @section('content')
 <div class="container mt-5">
-
-    <!-- First Row: Teams and Predictions -->
-    <div class="row mb-4">
-        <!-- Teams Column -->
-        <div class="col-md-6">
-            <h2 class="mb-3">Attending Teams</h2>
-            <ul class="list-group">
-                @foreach($teams as $team)
-                    <li class="list-group-item">{{ $team->name }}</li>
-                @endforeach
-            </ul>
-        </div>
-
-        <!-- Predictions Column -->
-        <div class="col-md-6">
-            <h2 class="mb-3">Predictions</h2>
-            <ul class="list-group">
-                @foreach($predictions ?? [] as $prediction)
-                    <li class="list-group-item">{{ $prediction }}</li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-
-    <!-- Second Row: Weeks -->
+    <h2 class="mb-4">Generated Fixtures</h2>
     <div class="row">
         @foreach ($weeks as $weekNumber => $matches)
             <div class="col-md-3 mb-4">

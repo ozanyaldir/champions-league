@@ -8,18 +8,18 @@ use App\Repositories\TeamRepository;
 
 class FixtureService
 {
-    protected $fixtureRepo;
-    protected $gameRepo;
-    protected $teamRepo;
+    protected $fixtureRepository;
+    protected $gameRepository;
+    protected $teamRepository;
 
     public function __construct(
-        FixtureRepository $fixtureRepo,
-        GameRepository $gameRepo,
-        TeamRepository $teamRepo
+        FixtureRepository $fixtureRepository,
+        GameRepository $gameRepository,
+        TeamRepository $teamRepository
     ) {
-        $this->fixtureRepo = $fixtureRepo;
-        $this->gameRepo = $gameRepo;
-        $this->teamRepo = $teamRepo;
+        $this->fixtureRepository = $fixtureRepository;
+        $this->gameRepository = $gameRepository;
+        $this->teamRepository = $teamRepository;
     }
 
     /**
@@ -27,7 +27,7 @@ class FixtureService
      */
     public function getFixturesGroupedByWeek()
     {
-        $fixtures = $this->fixtureRepo->allWithTeams();
+        $fixtures = $this->fixtureRepository->allWithTeams();
 
         $weeks = [];
         foreach ($fixtures as $fixture) {
@@ -41,23 +41,14 @@ class FixtureService
     }
 
     /**
-     * Get all teams
-     */
-    public function getAllTeams()
-    {
-        return $this->teamRepo->getAll();
-    }
-
-    /**
      * Generate fixtures for all teams (round-robin)
      */
     public function generateFixtures()
     {
-        // 1. Delete old games and fixtures
-        $this->gameRepo->deleteAll();
-        $this->fixtureRepo->deleteAll();
+        $this->gameRepository->deleteAll();
+        $this->fixtureRepository->deleteAll();
 
-        $teams = $this->teamRepo->getAll();
+        $teams = $this->teamRepository->getAll();
 
         if ($teams->count() < 2) {
             return false;
@@ -84,7 +75,7 @@ class FixtureService
         }
 
         // Insert fixtures
-        $this->fixtureRepo->insertMany($fixtures);
+        $this->fixtureRepository->insertMany($fixtures);
 
         return true;
     }
