@@ -24,46 +24,26 @@ class SimulationController extends Controller
 
     public function index()
     {
-        $teams = $this->teamService->getAllTeams();
-        $weeks = $this->fixtureService->getFixturesGroupedByWeek();
-
-        // Build initial empty league table
-        $table = collect($teams)->map(function ($team) {
+        $teamsWithStats = $this->simulationService->buildLeagueTable();
+        $table = $teamsWithStats->map(function ($t) {
             return [
-                'team' => $team->name,
-                'played' => 0,
-                'won' => 0,
-                'draw' => 0,
-                'lost' => 0,
-                'points' => 0,
+                'team' => $t->name,
+                'played' => $t->played,
+                'won' => $t->won,
+                'draw' => $t->draw,
+                'lost' => $t->lost,
+                'points' => $t->points,
             ];
         })->toArray();
 
-        // Determine current week
-        $currentWeek = ! empty($weeks)
-            ? min(array_keys($weeks))
-            : null;
+        // $currentWeek = ... // you can compute first unplayed week by checking fixtures/games
+        // $matches = ... // fixtures for current week as array of ['home' => name, 'away' => name]
+        $currentWeek = 1;
+        $matches = [];
 
-        $matches = $currentWeek
-            ? $weeks[$currentWeek]
-            : [];
+        $predictions = $this->simulationService->predictChampionship();
 
-        // Temporary equal-weight predictions
-        $predictions = [];
-        $teamCount = count($teams);
-
-        foreach ($teams as $team) {
-            $predictions[$team->name] = $teamCount > 0
-                ? 100 / $teamCount
-                : 0;
-        }
-
-        return view('simulation', compact(
-            'table',
-            'currentWeek',
-            'matches',
-            'predictions'
-        ));
+        return view('simulation', compact('table', 'currentWeek', 'matches', 'predictions'));
     }
 
     public function start(Request $request)

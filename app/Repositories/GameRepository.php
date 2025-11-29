@@ -27,9 +27,6 @@ class GameRepository
         $this->model->query()->delete();
     }
 
-    /**
-     * Create a new Game record
-     */
     public function create(array $data): Game
     {
         return $this->model->create($data);

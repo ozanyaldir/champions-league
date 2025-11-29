@@ -15,8 +15,6 @@ class FixtureRepository
     }
 
     /**
-     * Get all fixtures with their teams, ordered by week
-     *
      * @return Collection<int, Fixture>
      */
     public function allWithTeams(): Collection
@@ -26,17 +24,11 @@ class FixtureRepository
             ->get();
     }
 
-    /**
-     * Delete all fixtures
-     */
     public function deleteAll(): void
     {
         $this->model->query()->delete();
     }
 
-    /**
-     * Insert multiple fixtures
-     */
     public function insertMany(array $data): void
     {
         $this->model->insert($data);

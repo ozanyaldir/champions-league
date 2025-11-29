@@ -28,11 +28,7 @@ class FixtureController extends Controller
 
     public function generate(Request $request)
     {
-        $success = $this->fixtureService->generateFixtures();
-
-        if (! $success) {
-            return back()->with('error', 'Not enough teams to generate fixtures.');
-        }
+        $this->fixtureService->generateFixtures();
 
         return redirect()->route('fixtures.index');
     }

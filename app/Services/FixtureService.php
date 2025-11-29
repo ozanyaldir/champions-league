@@ -24,9 +24,6 @@ class FixtureService
         $this->teamRepository = $teamRepository;
     }
 
-    /**
-     * Get all fixtures grouped by week
-     */
     public function getFixturesGroupedByWeek()
     {
         $fixtures = $this->fixtureRepository->allWithTeams();
@@ -42,43 +39,186 @@ class FixtureService
         return $weeks;
     }
 
-    /**
-     * Generate fixtures for all teams (round-robin)
-     */
-    public function generateFixtures()
+    public function generateFixtures(
+        int $groupSize = 4,
+        int $matchesPerWeek = 2,
+        bool $doubleLeg = true
+    ) {
+        $this->resetSimulationData();
+
+        $teamIds = $this->fetchAndShuffleTeamIds();
+
+        $groups = $this->buildGroups($teamIds, $groupSize);
+
+        $fixtures = $this->generateAllGroupFixtures($groups, $matchesPerWeek, $doubleLeg);
+
+        $this->fixtureRepository->insertMany($fixtures);
+    }
+
+    public function resetSimulationData(): void
     {
         $this->gameRepository->deleteAll();
         $this->fixtureRepository->deleteAll();
+    }
 
+    protected function fetchAndShuffleTeamIds(): array
+    {
         $teams = $this->teamRepository->getAll();
-
-        if ($teams->count() < 2) {
-            return false;
-        }
-
         $teamIds = $teams->pluck('id')->toArray();
+
         shuffle($teamIds);
 
+        return $teamIds;
+    }
+
+    protected function buildGroups(array $teamIds, int $groupSize): array
+    {
+        $count = count($teamIds);
+
+        if ($count >= $groupSize && $count % $groupSize === 0) {
+            return array_chunk($teamIds, $groupSize);
+        }
+
+        return [$teamIds];
+    }
+
+    protected function generateAllGroupFixtures(
+        array $groups,
+        int $matchesPerWeek,
+        bool $doubleLeg
+    ): array {
         $fixtures = [];
         $week = 1;
 
-        // Round-robin: each team plays each other once
-        for ($i = 0; $i < count($teamIds); $i++) {
-            for ($j = $i + 1; $j < count($teamIds); $j++) {
+        foreach ($groups as $groupTeamIds) {
+
+            $groupFixtures = $this->roundRobinFixtures(
+                $groupTeamIds,
+                $week,
+                $doubleLeg,
+                $matchesPerWeek
+            );
+
+            $fixtures = array_merge($fixtures, $groupFixtures);
+            $week = $this->calculateNextGroupWeek($groupFixtures);
+        }
+
+        return $fixtures;
+    }
+
+    protected function calculateNextGroupWeek(array $fixtures): int
+    {
+        if (empty($fixtures)) {
+            return 1;
+        }
+
+        return max(array_column($fixtures, 'week')) + 1;
+    }
+
+    protected function roundRobinFixtures(
+        array $teamIds,
+        int $startWeek = 1,
+        bool $doubleLeg = false,
+        int $matchesPerWeek = 2
+    ): array {
+
+        $teamIds = $this->ensureEvenTeams($teamIds);
+
+        $rounds = $this->generateRoundRobinRounds($teamIds);
+
+        if ($doubleLeg) {
+            $rounds = $this->addReverseLegs($rounds);
+        }
+
+        return $this->convertRoundsToFixtures($rounds, $startWeek, $matchesPerWeek);
+    }
+
+    protected function ensureEvenTeams(array $teamIds): array
+    {
+        if (count($teamIds) % 2 !== 0) {
+            $teamIds[] = null; // BYE
+        }
+
+        return $teamIds;
+    }
+
+    protected function generateRoundRobinRounds(array $teamIds): array
+    {
+        $n = count($teamIds);
+        $roundCount = $n - 1;
+        $half = $n / 2;
+
+        $rounds = [];
+
+        for ($round = 0; $round < $roundCount; $round++) {
+            $matchday = [];
+
+            for ($i = 0; $i < $half; $i++) {
+                $home = $teamIds[$i];
+                $away = $teamIds[$n - 1 - $i];
+
+                if ($home !== null && $away !== null) {
+                    $matchday[] = [$home, $away];
+                }
+            }
+
+            $rounds[] = $matchday;
+
+            // rotate except first
+            $last = array_pop($teamIds);
+            array_splice($teamIds, 1, 0, [$last]);
+        }
+
+        return $rounds;
+    }
+
+    protected function addReverseLegs(array $rounds): array
+    {
+        $reverseRounds = [];
+
+        foreach ($rounds as $matchday) {
+            $rev = [];
+            foreach ($matchday as [$home, $away]) {
+                $rev[] = [$away, $home];
+            }
+            $reverseRounds[] = $rev;
+        }
+
+        return array_merge($rounds, $reverseRounds);
+    }
+
+    protected function convertRoundsToFixtures(
+        array $rounds,
+        int $startWeek,
+        int $matchesPerWeek
+    ): array {
+        $fixtures = [];
+        $week = $startWeek;
+        $matchesInCurrentWeek = 0;
+
+        foreach ($rounds as $matchday) {
+
+            foreach ($matchday as [$home, $away]) {
                 $fixtures[] = [
-                    'home_team_id' => $teamIds[$i],
-                    'away_team_id' => $teamIds[$j],
+                    'home_team_id' => $home,
+                    'away_team_id' => $away,
                     'week' => $week,
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ];
+
+                $matchesInCurrentWeek++;
+
+                if ($matchesInCurrentWeek >= $matchesPerWeek) {
+                    $week++;
+                    $matchesInCurrentWeek = 0;
+                }
+            }
+
+            if ($matchesInCurrentWeek !== 0) {
                 $week++;
+                $matchesInCurrentWeek = 0;
             }
         }
 
-        // Insert fixtures
-        $this->fixtureRepository->insertMany($fixtures);
-
-        return true;
+        return $fixtures;
     }
 }
