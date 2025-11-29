@@ -6,7 +6,7 @@
     <div class="row">
         @foreach ($weeks as $weekNumber => $matches)
             <div class="col-md-3 mb-4">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
                         Week {{ $weekNumber }}
                     </div>
