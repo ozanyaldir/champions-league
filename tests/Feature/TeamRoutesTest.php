@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Routes;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TeamRoutesTest extends TestCase
 {
