@@ -37,9 +37,12 @@ A Laravel-based football simulation engine that generates fixtures, simulates we
 app/
 ├── Http/
 │   └── Controllers/
-│       ├── TeamController.php
-│       ├── FixtureController.php
-│       └── SimulationController.php
+│   │   ├── TeamController.php
+│   │   ├── FixtureController.php
+│   │   └── SimulationController.php
+│   └── Resources/
+│       ├── FixtureResource.php
+│       └── TeamResource.php
 ├── Orchestrators/
 │   └── SimulationOrchestrator.php
 ├── Services/
@@ -69,7 +72,7 @@ The project is deployed on **Amazon Web Services (AWS)** using the following com
 ### **🌐 Application Load Balancer (Not Used)**
 - The project does **not** use an ALB.
 - EC2 directly serves the application through Nginx via port 80.
-- **App can be tested at URL:** http://3.75.91.247
+- **App can be tested at URL:** <a href="http://3.75.91.247" target="_blank">http://3.75.91.247</a>
 - *Note: App only accepts http:// to test.*
 
 ### **🖥️ Amazon EC2**
@@ -141,10 +144,3 @@ Runs **N Monte Carlo simulations** to estimate each team’s probability of beco
 - MySQL 8+
 - Composer
 - Node.js + npm
-
----
-
-## 📄 License
-
-MIT License.
-

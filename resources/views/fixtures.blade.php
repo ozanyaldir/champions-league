@@ -15,7 +15,7 @@
                     <ul class="list-group list-group-flush">
                         @foreach ($fixtures as $fixture)
                             <li class="list-group-item">
-                                {{ $fixture->homeTeam->name }} 
+                                {{ $fixture->homeTeam?->name }} 
                                 @if(!$fixture->awayTeam->name)
                                     ✕
                                 @else
