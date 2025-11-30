@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Routes;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\Team;
 use App\Models\Fixture;
+use App\Models\Team;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimulationRoutesTest extends TestCase
 {

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Game;
 use App\Models\Fixture;
+use App\Models\Game;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,9 +16,9 @@ class GameFactory extends Factory
     public function definition(): array
     {
         return [
-            'fixture_id'  => Fixture::factory(),
-            'home_goals'  => $this->faker->numberBetween(0, 5),
-            'away_goals'  => $this->faker->numberBetween(0, 5),
+            'fixture_id' => Fixture::factory(),
+            'home_goals' => $this->faker->numberBetween(0, 5),
+            'away_goals' => $this->faker->numberBetween(0, 5),
         ];
     }
 
