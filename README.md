@@ -37,60 +37,74 @@ A Laravel-based football simulation engine that generates fixtures, simulates we
 app/
 ├── Http/
 │   └── Controllers/
+│       ├── TeamController.php
+│       ├── FixtureController.php
 │       └── SimulationController.php
-├── Services/
-│   └── SimulationService.php
 ├── Orchestrators/
 │   └── SimulationOrchestrator.php
+├── Services/
+│   ├── ChampionshipPredictorService.php
+│   ├── FixtureService.php
+│   ├── LeagueTableBuilderService.php
+│   ├── TeamService.php
+│   └── SimulationService.php
 ├── Repositories/
 │   ├── TeamRepository.php
 │   ├── GameRepository.php
 │   └── FixtureRepository.php
-└── Simulation/
-    └── ChampionshipPredictor.php
+├── Models/
+│   ├── Team.php
+│   ├── Game.php
+│   └── Fixture.php
+└── Support/
+    └── MathUtils.php
 ```
 
 ---
 
-## 🚀 Installation
+## ☁️ Cloud Infrastructure (AWS)
 
-### 1. Clone the Repository
-```bash
-git clone <your-repo-url>
-cd champions-league
+The project is deployed on **Amazon Web Services (AWS)** using the following components:
+
+### **🌐 Application Load Balancer (Not Used)**
+- The project does **not** use an ALB.
+- EC2 directly serves the application through Nginx via port 80.
+- **App can be tested at URL:** http://3.75.91.247
+- *Note: App only accepts http:// to test.*
+
+### **🖥️ Amazon EC2**
+- Hosts the Laravel application.
+- Runs an Nginx server.
+- Exposes the application over **port 80**.
+- No Application Load Balancer is used for this setup.
+- Handles Composer, PHP, queue workers, and static files.
+
+### **🗄️ Amazon RDS (MySQL)**
+- Managed MySQL database instance.
+- Automated backups and monitoring.
+- Stores all application data: teams, fixtures, games, simulation results.
+- Database info is shared for test purposes. Will be removed soon.
+```
+DB_CONNECTION=mysql
+DB_HOST=insider-champions-league.cd4ai2u0qvbk.eu-central-1.rds.amazonaws.com
+DB_DATABASE=insider-champions-league-rds
+DB_USERNAME=Disobey9329
+DB_PASSWORD=xDW!C9pZXfdD*iLv
 ```
 
-### 2. Install Dependencies
-```bash
-composer install
-npm install && npm run dev
-```
+### **🔐 Security Groups**
+The infrastructure uses **two security groups**:
 
-### 3. Create Environment File
-```bash
-cp .env.example .env
-php artisan key:generate
-```
+#### **1. RDS Security Group**
+- Inbound: **Allows all traffic from anywhere (0.0.0.0/0)** — for testing purposes only.
+- Outbound: **Allows all outbound traffic**.
+- *Note: This configuration is insecure for production.*
 
-### 4. Configure Database
-
-Update `.env`:
-
-```
-DB_DATABASE=champions
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### 5. Run Migrations & Seeders
-```bash
-php artisan migrate --seed
-```
-
-### 6. Start Development Server
-```bash
-php artisan serve
-```
+#### **2. EC2 Security Group**
+- Inbound: **Port 80 (HTTP)** open to 0.0.0.0/0.
+- Inbound: **Port 22 (SSH)** open to 0.0.0.0/0 (testing only).
+- Outbound: **Allows all outbound traffic**.
+- *Note: This inbound configuration is insecure for production. Would prefer https traffic through ALB*
 
 ---
 
@@ -120,25 +134,6 @@ Runs **N Monte Carlo simulations** to estimate each team’s probability of beco
 
 ---
 
-## 🧪 Running Simulations
-
-### Play All Matches
-```
-/simulation/play-all
-```
-
-### Play Next Week
-```
-/simulation/play-next-week
-```
-
-### Start a New Simulation
-```
-/simulation/start
-```
-
----
-
 ## 🛠️ Requirements
 
 - PHP 8.2+
@@ -146,13 +141,6 @@ Runs **N Monte Carlo simulations** to estimate each team’s probability of beco
 - MySQL 8+
 - Composer
 - Node.js + npm
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome.  
-For major changes, open an issue to discuss proposed modifications.
 
 ---
 
