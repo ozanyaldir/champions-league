@@ -6,6 +6,7 @@ use App\Services\ChampionshipPredictorService;
 use App\Services\FixtureService;
 use App\Services\LeagueTableBuilderService;
 use App\Services\SimulationService;
+use App\Models\Fixture;
 use Illuminate\Database\Eloquent\Collection;
 
 class SimulationOrchestrator
@@ -51,7 +52,7 @@ class SimulationOrchestrator
     }
 
     /**
-     * @return array<int, array<int, \App\Models\Fixture>>
+     * @return array<int, array<int, Fixture>>
      */
     public function getCurrentWeekFixtures(): array
     {
