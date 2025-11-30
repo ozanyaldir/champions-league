@@ -22,6 +22,11 @@ class GameRepository
         return $this->model->query()->get();
     }
 
+    public function getPlayedFixtureIds(): array
+    {
+        return $this->model->pluck('fixture_id')->toArray();
+    }
+
     public function deleteAll(): void
     {
         $this->model->query()->delete();

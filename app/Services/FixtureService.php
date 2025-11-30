@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Fixture;
 use App\Repositories\FixtureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\TeamRepository;
@@ -24,7 +25,10 @@ class FixtureService
         $this->teamRepository = $teamRepository;
     }
 
-    public function getFixturesGroupedByWeek()
+    /**
+     * @return array<int, array<int, Fixture>>
+     */
+    public function getFixturesGroupedByWeek(): array
     {
         $fixtures = $this->fixtureRepository->allWithTeams();
 
@@ -34,6 +38,57 @@ class FixtureService
         }
 
         return $weeks;
+    }
+
+    /**
+     * @return array<int, array<int, Fixture>>
+     */
+    public function getCurrentWeekFixtures(): array
+    {
+        // Get all fixtures
+        $fixtures = $this->fixtureRepository->allWithTeams();
+
+        if ($fixtures->isEmpty()) {
+            return [];
+        }
+
+        // Determine which fixture IDs are already played
+        $playedFixtureIds = $this->gameRepository->getPlayedFixtureIds();
+
+        // Find weeks that are already fully played
+        $playedWeeks = [];
+
+        foreach ($fixtures as $fixture) {
+            if (in_array($fixture->id, $playedFixtureIds, true)) {
+                $playedWeeks[$fixture->week] = true;
+            }
+        }
+
+        // Determine next week to play
+        $allWeeks = $fixtures->pluck('week')->unique()->sort()->values();
+
+        $nextWeek = null;
+        foreach ($allWeeks as $week) {
+            if (! isset($playedWeeks[$week])) {
+                $nextWeek = $week;
+                break;
+            }
+        }
+
+        // If everything is played
+        if ($nextWeek === null) {
+            return [];
+        }
+
+        // Group fixtures by next week
+        $grouped = [];
+        foreach ($fixtures as $fixture) {
+            if ($fixture->week === $nextWeek) {
+                $grouped[$nextWeek][] = $fixture;
+            }
+        }
+
+        return $grouped;
     }
 
     public function generateFixtures(

@@ -39,27 +39,31 @@
         </div>
 
         {{-- Current Week Simulation --}}
-        <div class="col-lg-4 col-md-6">
-            <div class="table-responsive rounded-3 shadow-sm" style="max-width: 440px;">
-                <table class="table mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Week 1</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($matches ?? [] as $m)
-                        <tr>
-                            <td>{{ $m['home'] }}</td>
-                            <td>{{ $m['away'] }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        @if (!empty($currentWeekFixtures) && count($currentWeekFixtures))
+            <div class="col-md-3 mb-4">
+                @foreach ($currentWeekFixtures as $weekNumber => $fixtures)
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-header bg-dark text-white">
+                            Week {{ $weekNumber }}
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @foreach ($fixtures as $fixture)
+                                <li class="list-group-item">
+                                    {{ $fixture->homeTeam->name }} 
+                                    @if (!$fixture->awayTeam->name)
+                                        ✕
+                                    @else
+                                        - {{ $fixture->awayTeam->name }}
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endforeach
             </div>
-        </div>
+        @endif
 
+        
         {{-- Predictions --}}
         <div class="col-lg-4 col-md-6">
             <div class="table-responsive rounded-3 shadow-sm" style="max-width: 440px;">

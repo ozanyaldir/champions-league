@@ -3,12 +3,15 @@
 namespace App\Orchestrators;
 
 use App\Services\ChampionshipPredictorService;
+use App\Services\FixtureService;
 use App\Services\LeagueTableBuilderService;
 use App\Services\SimulationService;
 use Illuminate\Database\Eloquent\Collection;
 
 class SimulationOrchestrator
 {
+    protected $fixtureService;
+
     protected $simulationService;
 
     protected $championshipPredictorService;
@@ -16,10 +19,12 @@ class SimulationOrchestrator
     protected $leagueTableBuilderService;
 
     public function __construct(
+        FixtureService $fixtureService,
         SimulationService $simulationService,
         ChampionshipPredictorService $championshipPredictorService,
         LeagueTableBuilderService $leagueTableBuilderService,
     ) {
+        $this->fixtureService = $fixtureService;
         $this->simulationService = $simulationService;
         $this->championshipPredictorService = $championshipPredictorService;
         $this->leagueTableBuilderService = $leagueTableBuilderService;
@@ -43,6 +48,14 @@ class SimulationOrchestrator
     public function buildLeagueTable(): Collection
     {
         return $this->leagueTableBuilderService->buildLeagueTable();
+    }
+
+    /**
+     * @return array<int, array<int, \App\Models\Fixture>>
+     */
+    public function getCurrentWeekFixtures(): array
+    {
+        return $this->fixtureService->getCurrentWeekFixtures();
     }
 
     public function predictChampionship(): array

@@ -24,15 +24,10 @@ class SimulationController extends Controller
     public function index()
     {
         $table = $this->simulationOrchestrator->buildLeagueTable();
-
-        // $currentWeek = ... // you can compute first unplayed week by checking fixtures/games
-        // $matches = ... // fixtures for current week as array of ['home' => name, 'away' => name]
-        $currentWeek = 1;
-        $matches = [];
-
+        $currentWeekFixtures = $this->simulationOrchestrator->getCurrentWeekFixtures();
         $predictions = $this->simulationOrchestrator->predictChampionship();
 
-        return view('simulation', compact('table', 'currentWeek', 'matches', 'predictions'));
+        return view('simulation', compact('table', 'currentWeekFixtures', 'predictions'));
     }
 
     public function start()
