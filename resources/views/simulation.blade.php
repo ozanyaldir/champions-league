@@ -48,12 +48,14 @@
                         </div>
                         <ul class="list-group list-group-flush">
                             @foreach ($fixtures as $fixture)
+                                @php
+                                    $game = $fixture->game; // get related game
+                                @endphp
                                 <li class="list-group-item">
-                                    {{ $fixture->homeTeam->name }} 
-                                    @if (!$fixture->awayTeam->name)
-                                        ✕
+                                    @if($game)
+                                        {{ $fixture->homeTeam->name }}({{ $game->home_goals }}) - {{ $fixture->awayTeam->name }}({{ $game->away_goals }})
                                     @else
-                                        - {{ $fixture->awayTeam->name }}
+                                        {{ $fixture->homeTeam->name }} - {{ $fixture->awayTeam->name }}
                                     @endif
                                 </li>
                             @endforeach
@@ -63,7 +65,6 @@
             </div>
         @endif
 
-        
         {{-- Predictions --}}
         <div class="col-lg-4 col-md-6">
             <div class="table-responsive rounded-3 shadow-sm" style="max-width: 440px;">

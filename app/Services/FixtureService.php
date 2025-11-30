@@ -42,31 +42,30 @@ class FixtureService
 
     /**
      * @return array<int, array<int, Fixture>>
+     *                                         Returns all played weeks grouped plus the upcoming week as the last group.
      */
     public function getCurrentWeekFixtures(): array
     {
-        // Get all fixtures
         $fixtures = $this->fixtureRepository->allWithTeams();
 
         if ($fixtures->isEmpty()) {
             return [];
         }
 
-        // Determine which fixture IDs are already played
         $playedFixtureIds = $this->gameRepository->getPlayedFixtureIds();
 
-        // Find weeks that are already fully played
         $playedWeeks = [];
+        $nextWeekFixtures = [];
 
+        // Group fixtures by played weeks
         foreach ($fixtures as $fixture) {
             if (in_array($fixture->id, $playedFixtureIds, true)) {
-                $playedWeeks[$fixture->week] = true;
+                $playedWeeks[$fixture->week][] = $fixture;
             }
         }
 
         // Determine next week to play
         $allWeeks = $fixtures->pluck('week')->unique()->sort()->values();
-
         $nextWeek = null;
         foreach ($allWeeks as $week) {
             if (! isset($playedWeeks[$week])) {
@@ -75,20 +74,24 @@ class FixtureService
             }
         }
 
-        // If everything is played
-        if ($nextWeek === null) {
-            return [];
-        }
-
-        // Group fixtures by next week
-        $grouped = [];
-        foreach ($fixtures as $fixture) {
-            if ($fixture->week === $nextWeek) {
-                $grouped[$nextWeek][] = $fixture;
+        // Group upcoming fixtures
+        if ($nextWeek !== null) {
+            foreach ($fixtures as $fixture) {
+                if ($fixture->week === $nextWeek) {
+                    $nextWeekFixtures[$nextWeek][] = $fixture;
+                }
             }
         }
 
-        return $grouped;
+        // Merge played and upcoming, preserving order
+        $result = $playedWeeks;
+        if (! empty($nextWeekFixtures)) {
+            $result[$nextWeek] = $nextWeekFixtures[$nextWeek];
+        }
+
+        ksort($result); // sort by week number
+
+        return $result;
     }
 
     public function generateFixtures(
