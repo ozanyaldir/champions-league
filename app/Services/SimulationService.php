@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Repositories\FixtureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\TeamRepository;
-use Illuminate\Database\Eloquent\Collection;
 
 class SimulationService
 {
@@ -29,13 +28,17 @@ class SimulationService
         $this->gameRepository = $gameRepository;
     }
 
-    /**
-     * @return void
-     */
-    public function reset()
+    public function reset(): void
     {
         $this->gameRepository->deleteAll();
         $this->fixtureRepository->deleteAll();
+    }
+
+    public function playAll(): void
+    {
+        while ($this->playNextWeek() !== null) {
+            // continue until none left
+        }
     }
 
     /**
@@ -109,195 +112,10 @@ class SimulationService
         return null;
     }
 
-    /**
-     * Simulate all remaining weeks
-     */
-    public function playAll(): void
-    {
-        while ($this->playNextWeek() !== null) {
-            // continue until none left
-        }
-    }
-
-    /**
-     * Simple sampling function for goals: rounds Poisson-ish value
-     */
     protected function sampleGoals(float $lambda): int
     {
-        // Quick Poisson approximation: draw by repeated exp method would be heavy;
-        // use a small randomization around lambda to produce integer goals.
         $v = \max(0, round($lambda + (mt_rand(-100, 100) / 100.0) * 0.6));
 
         return (int) $v;
-    }
-
-    /**
-     * Build league table by scanning Game records and fixtures (returns collection of team models with stats attached)
-     */
-    public function buildLeagueTable(): Collection
-    {
-        $teams = $this->teamRepository->getAll(); // eager-load if needed
-        $allGames = $this->gameRepository->getAll(); // eager-load fixture relation in repo
-
-        // init stats map
-        $stats = [];
-        foreach ($teams as $t) {
-            $stats[$t->id] = [
-                'played' => 0, 'won' => 0, 'draw' => 0, 'lost' => 0, 'points' => 0, 'gf' => 0, 'ga' => 0,
-            ];
-        }
-
-        foreach ($allGames as $g) {
-            $fixture = $g->fixture;
-            if (! $fixture) {
-                continue;
-            }
-
-            $homeId = $fixture->home_team_id;
-            $awayId = $fixture->away_team_id;
-            if (! isset($stats[$homeId]) || ! isset($stats[$awayId])) {
-                continue;
-            }
-
-            $hg = (int) $g->home_goals;
-            $ag = (int) $g->away_goals;
-
-            $stats[$homeId]['played']++;
-            $stats[$awayId]['played']++;
-
-            $stats[$homeId]['gf'] += $hg;
-            $stats[$homeId]['ga'] += $ag;
-
-            $stats[$awayId]['gf'] += $ag;
-            $stats[$awayId]['ga'] += $hg;
-
-            if ($hg === $ag) {
-                $stats[$homeId]['draw']++;
-                $stats[$awayId]['draw']++;
-                $stats[$homeId]['points']++;
-                $stats[$awayId]['points']++;
-            } elseif ($hg > $ag) {
-                $stats[$homeId]['won']++;
-                $stats[$awayId]['lost']++;
-                $stats[$homeId]['points'] += 3;
-            } else {
-                $stats[$awayId]['won']++;
-                $stats[$homeId]['lost']++;
-                $stats[$awayId]['points'] += 3;
-            }
-        }
-
-        // attach stats to team models (in-memory)
-        foreach ($teams as $t) {
-            $s = $stats[$t->id];
-            $t->played = $s['played'];
-            $t->won = $s['won'];
-            $t->draw = $s['draw'];
-            $t->lost = $s['lost'];
-            $t->points = $s['points'];
-            $t->gf = $s['gf'];
-            $t->ga = $s['ga'];
-            $t->gd = $s['gf'] - $s['ga'];
-        }
-
-        return $teams;
-    }
-
-    /**
-     * Predict championship probabilities using a simple Monte-Carlo-ish approach:
-     * - For small number of remaining weeks we can do deterministic branching,
-     * - Simpler: run N random fast simulations of remaining matches and see who finishes top.
-     *
-     * Here we run Monte Carlo with default 500 iterations (cheap).
-     */
-    public function predictChampionship(int $iterations = 500): array
-    {
-        $teams = $this->teamRepository->getAll()->keyBy('id');
-        $allFixtures = $this->fixtureRepository->allWithTeams();
-        $played = $this->gameRepository->getAll(); // games persisted
-
-        // prepare current points
-        $currentPoints = [];
-        foreach ($teams as $id => $team) {
-            $currentPoints[$id] = 0;
-        }
-        foreach ($played as $g) {
-            $f = $g->fixture;
-            if (! $f) {
-                continue;
-            }
-            $hg = (int) $g->home_goals;
-            $ag = (int) $g->away_goals;
-            if ($hg === $ag) {
-                $currentPoints[$f->home_team_id] += 1;
-                $currentPoints[$f->away_team_id] += 1;
-            } elseif ($hg > $ag) {
-                $currentPoints[$f->home_team_id] += 3;
-            } else {
-                $currentPoints[$f->away_team_id] += 3;
-            }
-        }
-
-        // collect remaining fixtures (fixture models that don't have a game)
-        $remainingFixtures = $allFixtures->filter(function ($f) use ($played) {
-            return ! $played->first(fn ($g) => $g->fixture_id == $f->id);
-        })->values();
-
-        if ($remainingFixtures->isEmpty()) {
-            // season finished -> top team's 100%
-            $finalPoints = $currentPoints;
-            arsort($finalPoints);
-            $topId = array_key_first($finalPoints);
-            $res = [];
-            foreach ($teams as $t) {
-                $res[$t->name] = ($t->id == $topId) ? 100.0 : 0.0;
-            }
-
-            return $res;
-        }
-
-        // Monte Carlo runs
-        $wins = array_fill_keys($teams->keys()->all(), 0);
-
-        $iterations = max(50, $iterations); // at least 50
-        for ($it = 0; $it < $iterations; $it++) {
-            // copy points
-            $points = $currentPoints;
-
-            // simulate remaining fixtures quickly (random but weighted)
-            foreach ($remainingFixtures as $f) {
-                $homePower = $f->homeTeam->power ?? 50;
-                $awayPower = $f->awayTeam->power ?? 50;
-                $avg = ($homePower + $awayPower) / 2.0;
-
-                $homeExp = $this->baseGoalRate * ($homePower / max(1, $avg)) * $this->homeAdvantage;
-                $awayExp = $this->baseGoalRate * ($awayPower / max(1, $avg));
-
-                $hg = $this->sampleGoals($homeExp);
-                $ag = $this->sampleGoals($awayExp);
-
-                if ($hg === $ag) {
-                    $points[$f->home_team_id] += 1;
-                    $points[$f->away_team_id] += 1;
-                } elseif ($hg > $ag) {
-                    $points[$f->home_team_id] += 3;
-                } else {
-                    $points[$f->away_team_id] += 3;
-                }
-            }
-
-            // determine winner (highest points, tie-breaker random)
-            arsort($points);
-            $topId = array_key_first($points);
-            $wins[$topId] = $wins[$topId] + 1;
-        }
-
-        // compute percentages
-        $res = [];
-        foreach ($teams as $id => $team) {
-            $res[$team->name] = round(($wins[$id] / $iterations) * 100, 1);
-        }
-
-        return $res;
     }
 }

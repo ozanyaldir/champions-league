@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Orchestrators\SimulationOrchestrator;
 use App\Services\FixtureService;
-use App\Services\SimulationService;
 use App\Services\TeamService;
-use Illuminate\Http\Request;
 
 class SimulationController extends Controller
 {
@@ -13,51 +12,51 @@ class SimulationController extends Controller
 
     protected $fixtureService;
 
-    protected $simulationService;
+    protected $simulationOrchestrator;
 
-    public function __construct(TeamService $teamService, FixtureService $fixtureService, SimulationService $simulationService)
+    public function __construct(TeamService $teamService, FixtureService $fixtureService, SimulationOrchestrator $simulationOrchestrator)
     {
         $this->teamService = $teamService;
         $this->fixtureService = $fixtureService;
-        $this->simulationService = $simulationService;
+        $this->simulationOrchestrator = $simulationOrchestrator;
     }
 
     public function index()
     {
-        $table = $this->simulationService->buildLeagueTable();
+        $table = $this->simulationOrchestrator->buildLeagueTable();
 
         // $currentWeek = ... // you can compute first unplayed week by checking fixtures/games
         // $matches = ... // fixtures for current week as array of ['home' => name, 'away' => name]
         $currentWeek = 1;
         $matches = [];
 
-        $predictions = $this->simulationService->predictChampionship();
+        $predictions = $this->simulationOrchestrator->predictChampionship();
 
         return view('simulation', compact('table', 'currentWeek', 'matches', 'predictions'));
     }
 
-    public function start(Request $request)
+    public function start()
     {
         return redirect()->route('simulation.index');
     }
 
-    public function playAll(Request $request)
+    public function playAll()
     {
-        $this->simulationService->playAll();
+        $this->simulationOrchestrator->playAll();
 
         return redirect()->route('simulation.index');
     }
 
-    public function playNextWeek(Request $request)
+    public function playNextWeek()
     {
-        $this->simulationService->playNextWeek();
+        $this->simulationOrchestrator->playNextWeek();
 
         return redirect()->route('simulation.index');
     }
 
-    public function reset(Request $request)
+    public function reset()
     {
-        $this->simulationService->reset();
+        $this->simulationOrchestrator->reset();
 
         return redirect()->route('teams.index');
     }
