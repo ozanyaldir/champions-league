@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\FixtureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\TeamRepository;
+use App\Support\MathUtils;
 
 class SimulationService
 {
@@ -41,11 +42,6 @@ class SimulationService
         }
     }
 
-    /**
-     * Simulate next unplayed week (create Game rows)
-     *
-     * @return int|null week number simulated or null if none left
-     */
     public function playNextWeek(): ?int
     {
         // load fixtures and games
@@ -93,8 +89,8 @@ class SimulationService
                     $awayExp = max(0.2, $awayExp);
 
                     // convert expected to actual goals (small random Poisson-ish)
-                    $homeGoals = $this->sampleGoals($homeExp);
-                    $awayGoals = $this->sampleGoals($awayExp);
+                    $homeGoals = MathUtils::sampleGoals($homeExp);
+                    $awayGoals = MathUtils::sampleGoals($awayExp);
 
                     // create game record (persist)
                     $this->gameRepository->create([
@@ -110,12 +106,5 @@ class SimulationService
 
         // no unplayed weeks left
         return null;
-    }
-
-    protected function sampleGoals(float $lambda): int
-    {
-        $v = \max(0, round($lambda + (mt_rand(-100, 100) / 100.0) * 0.6));
-
-        return (int) $v;
     }
 }

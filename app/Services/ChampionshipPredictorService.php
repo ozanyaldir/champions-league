@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\FixtureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\TeamRepository;
+use App\Support\MathUtils;
 
 class ChampionshipPredictorService
 {
@@ -91,8 +92,8 @@ class ChampionshipPredictorService
                 $homeExp = $this->baseGoalRate * ($homePower / max(1, $avg)) * $this->homeAdvantage;
                 $awayExp = $this->baseGoalRate * ($awayPower / max(1, $avg));
 
-                $hg = $this->sampleGoals($homeExp);
-                $ag = $this->sampleGoals($awayExp);
+                $hg = MathUtils::sampleGoals($homeExp);
+                $ag = MathUtils::sampleGoals($awayExp);
 
                 if ($hg === $ag) {
                     $points[$f->home_team_id] += 1;
@@ -117,12 +118,5 @@ class ChampionshipPredictorService
         }
 
         return $res;
-    }
-
-    protected function sampleGoals(float $lambda): int
-    {
-        $v = \max(0, round($lambda + (mt_rand(-100, 100) / 100.0) * 0.6));
-
-        return (int) $v;
     }
 }
