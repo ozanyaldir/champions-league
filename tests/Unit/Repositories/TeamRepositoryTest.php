@@ -1,45 +1,44 @@
 <?php
 
-namespace Tests\Unit\Repositories;
+namespace Tests\Unit;
 
 use App\Models\Team;
 use App\Repositories\TeamRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Mockery;
 use Tests\TestCase;
 
 class TeamRepositoryTest extends TestCase
 {
-    protected function tearDown(): void
+    protected $model;
+
+    protected $repository;
+
+    protected function setUp(): void
     {
-        Mockery::close();
-        parent::tearDown();
+        parent::setUp();
+
+        $this->model = Mockery::mock(Team::class);
+        $this->repository = new TeamRepository($this->model);
     }
 
-    public function test_get_all_returns_team_collection()
+    /** @test */
+    public function it_returns_all_teams()
     {
-        // Fake return collection
-        $fakeTeams = new Collection([
-            new Team(['name' => 'Team A']),
-            new Team(['name' => 'Team B']),
+        $teams = new EloquentCollection([
+            (object) ['id' => 1, 'name' => 'Team A'],
+            (object) ['id' => 2, 'name' => 'Team B'],
         ]);
 
-        // Mock the Team model instance
-        $teamModelMock = Mockery::mock(Team::class);
-        $teamModelMock->shouldReceive('all')
+        $this->model
+            ->shouldReceive('all')
             ->once()
-            ->andReturn($fakeTeams);
+            ->andReturn($teams);
 
-        // Inject mock into repository
-        $repo = new TeamRepository($teamModelMock);
+        $result = $this->repository->getAll();
 
-        // Act
-        $result = $repo->getAll();
-
-        // Assertions
-        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertInstanceOf(EloquentCollection::class, $result);
         $this->assertCount(2, $result);
         $this->assertEquals('Team A', $result[0]->name);
-        $this->assertEquals('Team B', $result[1]->name);
     }
 }
