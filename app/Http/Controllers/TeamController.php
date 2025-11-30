@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TeamResource;
 use App\Services\TeamService;
 
 class TeamController extends Controller
@@ -16,7 +17,8 @@ class TeamController extends Controller
     public function index()
     {
         $teams = $this->teamService->getAllTeams();
+        $teamResources = TeamResource::collection($teams);
 
-        return view('teams', compact('teams'));
+        return view('teams', ['teams' => $teamResources]);
     }
 }

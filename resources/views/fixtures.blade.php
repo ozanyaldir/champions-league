@@ -3,21 +3,23 @@
 @section('content')
 <div class="container mt-5">
     <h2 class="mb-4">Generated Fixtures</h2>
+
+    {{-- Horizontal Layout --}}
     <div class="row">
-        @foreach ($weeks as $weekNumber => $matches)
+        @foreach ($weeks as $weekNumber => $fixtures)
             <div class="col-md-3 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
                         Week {{ $weekNumber }}
                     </div>
                     <ul class="list-group list-group-flush">
-                        @foreach ($matches as $match)
+                        @foreach ($fixtures as $fixture)
                             <li class="list-group-item">
-                                {{ $match['home'] }} 
-                                @if($match['away'] === 'Bye')
-                                    has a bye
+                                {{ $fixture->homeTeam->name }} 
+                                @if(!$fixture->awayTeam->name)
+                                    ✕
                                 @else
-                                    vs {{ $match['away'] }}
+                                    - {{ $fixture->awayTeam->name }}
                                 @endif
                             </li>
                         @endforeach
@@ -27,7 +29,7 @@
         @endforeach
     </div>
 
-    <!-- Start Simulation Button -->
+    {{-- Start Simulation --}}
     <div class="mt-4">
         <form method="POST" action="{{ route('simulation.start') }}">
             @csrf

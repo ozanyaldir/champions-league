@@ -24,17 +24,7 @@ class SimulationController extends Controller
 
     public function index()
     {
-        $teamsWithStats = $this->simulationService->buildLeagueTable();
-        $table = $teamsWithStats->map(function ($t) {
-            return [
-                'team' => $t->name,
-                'played' => $t->played,
-                'won' => $t->won,
-                'draw' => $t->draw,
-                'lost' => $t->lost,
-                'points' => $t->points,
-            ];
-        })->toArray();
+        $table = $this->simulationService->buildLeagueTable();
 
         // $currentWeek = ... // you can compute first unplayed week by checking fixtures/games
         // $matches = ... // fixtures for current week as array of ['home' => name, 'away' => name]

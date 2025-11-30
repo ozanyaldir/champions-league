@@ -3,30 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Services\FixtureService;
-use App\Services\TeamService;
-use Illuminate\Http\Request;
 
 class FixtureController extends Controller
 {
-    protected $teamService;
-
     protected $fixtureService;
 
-    public function __construct(TeamService $teamService, FixtureService $fixtureService)
+    public function __construct(FixtureService $fixtureService)
     {
-        $this->teamService = $teamService;
         $this->fixtureService = $fixtureService;
     }
 
     public function index()
     {
         $weeks = $this->fixtureService->getFixturesGroupedByWeek();
-        $teams = $this->teamService->getAllTeams();
 
-        return view('fixtures', compact('weeks', 'teams'));
+        return view('fixtures', ['weeks' => $weeks]);
     }
 
-    public function generate(Request $request)
+    public function generate()
     {
         $this->fixtureService->generateFixtures();
 

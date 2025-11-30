@@ -2,19 +2,22 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Mockery;
-use App\Services\FixtureService;
 use App\Repositories\FixtureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\TeamRepository;
+use App\Services\FixtureService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Mockery;
+use Tests\TestCase;
 
 class FixtureServiceTest extends TestCase
 {
     protected $fixtureRepository;
+
     protected $gameRepository;
+
     protected $teamRepository;
+
     protected $service;
 
     protected function setUp(): void
@@ -45,9 +48,9 @@ class FixtureServiceTest extends TestCase
     public function it_fetches_and_shuffles_team_ids()
     {
         $teams = new EloquentCollection([
-            (object)['id' => 1],
-            (object)['id' => 2],
-            (object)['id' => 3],
+            (object) ['id' => 1],
+            (object) ['id' => 2],
+            (object) ['id' => 3],
         ]);
 
         $this->teamRepository
@@ -67,12 +70,12 @@ class FixtureServiceTest extends TestCase
         $groups = $this->invokeMethod(
             $this->service,
             'buildGroups',
-            [[1,2,3,4,5,6,7,8], 4]
+            [[1, 2, 3, 4, 5, 6, 7, 8], 4]
         );
 
         $this->assertCount(2, $groups);
-        $this->assertEquals([1,2,3,4], $groups[0]);
-        $this->assertEquals([5,6,7,8], $groups[1]);
+        $this->assertEquals([1, 2, 3, 4], $groups[0]);
+        $this->assertEquals([5, 6, 7, 8], $groups[1]);
     }
 
     /** @test */
@@ -81,11 +84,11 @@ class FixtureServiceTest extends TestCase
         $groups = $this->invokeMethod(
             $this->service,
             'buildGroups',
-            [[1,2,3,4,5], 4]
+            [[1, 2, 3, 4, 5], 4]
         );
 
         $this->assertCount(1, $groups);
-        $this->assertEquals([1,2,3,4,5], $groups[0]);
+        $this->assertEquals([1, 2, 3, 4, 5], $groups[0]);
     }
 
     /** @test */
@@ -94,7 +97,7 @@ class FixtureServiceTest extends TestCase
         $fixtures = $this->invokeMethod(
             $this->service,
             'roundRobinFixtures',
-            [[1,2,3,4], 1, false, 2]
+            [[1, 2, 3, 4], 1, false, 2]
         );
 
         $this->assertCount(6, $fixtures);
@@ -111,7 +114,7 @@ class FixtureServiceTest extends TestCase
         $fixtures = $this->invokeMethod(
             $this->service,
             'roundRobinFixtures',
-            [[1,2,3,4], 1, true, 2]
+            [[1, 2, 3, 4], 1, true, 2]
         );
 
         $this->assertCount(12, $fixtures);
@@ -152,8 +155,8 @@ class FixtureServiceTest extends TestCase
     public function it_generates_all_group_fixtures()
     {
         $groups = [
-            [1,2,3,4],
-            [5,6,7,8],
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
         ];
 
         $fixtures = $this->invokeMethod(
@@ -169,10 +172,10 @@ class FixtureServiceTest extends TestCase
     public function it_inserts_fixtures_when_generating()
     {
         $teams = new EloquentCollection([
-            (object)['id' => 1],
-            (object)['id' => 2],
-            (object)['id' => 3],
-            (object)['id' => 4],
+            (object) ['id' => 1],
+            (object) ['id' => 2],
+            (object) ['id' => 3],
+            (object) ['id' => 4],
         ]);
 
         $this->teamRepository
@@ -193,20 +196,20 @@ class FixtureServiceTest extends TestCase
     public function it_groups_fixtures_by_week()
     {
         $fixtures = new EloquentCollection([
-            (object)[
+            (object) [
                 'week' => 1,
-                'homeTeam' => (object)['name' => 'A'],
-                'awayTeam' => (object)['name' => 'B'],
+                'homeTeam' => (object) ['name' => 'A'],
+                'awayTeam' => (object) ['name' => 'B'],
             ],
-            (object)[
+            (object) [
                 'week' => 1,
-                'homeTeam' => (object)['name' => 'C'],
+                'homeTeam' => (object) ['name' => 'C'],
                 'awayTeam' => null,
             ],
-            (object)[
+            (object) [
                 'week' => 2,
-                'homeTeam' => (object)['name' => 'D'],
-                'awayTeam' => (object)['name' => 'E'],
+                'homeTeam' => (object) ['name' => 'D'],
+                'awayTeam' => (object) ['name' => 'E'],
             ],
         ]);
 
@@ -227,6 +230,7 @@ class FixtureServiceTest extends TestCase
         $ref = new \ReflectionClass($object);
         $m = $ref->getMethod($method);
         $m->setAccessible(true);
+
         return $m->invokeArgs($object, $params);
     }
 }

@@ -30,10 +30,7 @@ class FixtureService
 
         $weeks = [];
         foreach ($fixtures as $fixture) {
-            $weeks[$fixture->week][] = [
-                'home' => $fixture->homeTeam->name,
-                'away' => $fixture->awayTeam ? $fixture->awayTeam->name : 'Bye',
-            ];
+            $weeks[$fixture->week][] = $fixture;
         }
 
         return $weeks;
@@ -136,7 +133,7 @@ class FixtureService
     protected function ensureEvenTeams(array $teamIds): array
     {
         if (count($teamIds) % 2 !== 0) {
-            $teamIds[] = null; // BYE
+            $teamIds[] = null;
         }
 
         return $teamIds;
@@ -164,7 +161,7 @@ class FixtureService
 
             $rounds[] = $matchday;
 
-            // rotate except first
+            // MARK: rotate except first
             $last = array_pop($teamIds);
             array_splice($teamIds, 1, 0, [$last]);
         }

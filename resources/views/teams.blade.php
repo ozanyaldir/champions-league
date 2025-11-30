@@ -4,6 +4,7 @@
 <div class="container mt-5">
     <h2 class="mb-4">Tournament Teams</h2>
 
+    {{-- Vertical Layout --}}
     <div style="max-width: 440px;">
         <div class="table-responsive rounded-3 shadow-sm">
             <table class="table mb-0">
@@ -27,6 +28,7 @@
         </div>
     </div>
 
+    {{-- Generate Fixtures --}}
     <div class="mt-4">
         <form action="{{ route('fixtures.generate') }}" method="POST">
             @csrf
