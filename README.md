@@ -86,14 +86,6 @@ The project is deployed on **Amazon Web Services (AWS)** using the following com
 - Managed MySQL database instance.
 - Automated backups and monitoring.
 - Stores all application data: teams, fixtures, games, simulation results.
-- Database info is shared for test purposes. Will be removed soon.
-```
-DB_CONNECTION=mysql
-DB_HOST=insider-champions-league.cd4ai2u0qvbk.eu-central-1.rds.amazonaws.com
-DB_DATABASE=insider-champions-league-rds
-DB_USERNAME=Disobey9329
-DB_PASSWORD=xDW!C9pZXfdD*iLv
-```
 
 ### **🔐 Security Groups**
 The infrastructure uses **two security groups**:
